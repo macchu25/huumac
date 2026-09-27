@@ -1,4 +1,3 @@
-
 const captions = [
   'Ngày đầu bước vào giảng đường',
   'Những người bạn mới',
@@ -151,8 +150,8 @@ export function createJourney(card, { guest, config, onClose }) {
   let previousTime = null;
   let frame, landed = false, cancelled = false, lastPhoto = -1, elapsed = 0;
   const riseDuration = 1800;
-  const travelDuration = 22000;
-  const landingDuration = 1500;
+  const travelDuration = 48000; // Tốc độ bay chậm rãi, thư thái theo 69 bức ảnh
+  const landingDuration = 1800;
   const totalDuration = riseDuration + travelDuration + landingDuration;
   const ease = t => t * t * (3 - 2 * t);
 
@@ -191,7 +190,8 @@ export function createJourney(card, { guest, config, onClose }) {
 
     const g = geometry();
     let x, y, pitch, yaw, roll, depth, camera = 0;
-    const baseScale = innerWidth < 600 ? 0.22 : 0.28;
+    // Kích thước nhỏ nhắn, thanh thoát
+    const baseScale = innerWidth < 600 ? 0.15 : 0.19;
     const halfHeight = paperHeight / 2;
     let scale = baseScale;
 
@@ -199,38 +199,39 @@ export function createJourney(card, { guest, config, onClose }) {
       // GIAI ĐOẠN 1: Cất cánh từ phong bì, lượn vút thẳng lên trời cao
       const t = ease(elapsed / riseDuration);
       x = g.begin;
-      y = (halfHeight + 60) - (halfHeight + 60 + 130) * t; // Từ phong bì vút lên độ cao -130px trên trời
-      pitch = 8 * t;
-      yaw = 14 * t;
+      y = (halfHeight + 60) - (halfHeight + 60 + 140) * t;
+      pitch = 10 * t;
+      yaw = 15 * t;
       roll = Math.sin(t * Math.PI * 2) * 5;
       depth = 15 * t;
       camera = 0;
       counter.textContent = 'Lá thư đang cất cánh cùng kỷ niệm…';
     } else if (elapsed < riseDuration + travelDuration) {
-      // GIAI ĐOẠN 2: "Bay ngang bay dọc" Ở TRÊN TRỜI, HOÀN TOÀN TRÊN DẢI ẢNH
+      // GIAI ĐOẠN 2: "Bay ngang bay dọc" TRÊN DẢI ẢNH: có lúc nằm ngang, có lúc đứng thẳng, có lúc xoay lượn
       const t = (elapsed - riseDuration) / travelDuration;
       x = g.begin + (g.end - g.begin) * t;
 
-      // Quỹ đạo nhấp nhô lượn sóng trên trời cao (-150px đến -110px)
-      // Đáy thư luôn ở trên mức -45px, tuyệt đối không chạm hay đâm xuyên qua ảnh!
-      const swoop = Math.sin(t * Math.PI * 6);
-      const flutter = Math.sin(elapsed / 260) * 4;
-      y = -130 - swoop * 20 + flutter;
+      // Độ cao lượn bồng bềnh trên trời cao (-165px đến -115px), hoàn toàn ở trên dải ảnh
+      const wave = Math.sin(t * Math.PI * 10);
+      const flutter = Math.sin(elapsed / 320) * 5;
+      y = -140 - wave * 22 + flutter;
 
-      // Góc chúc mũi / ngóc đầu nhẹ tự nhiên (chỉ 2° đến 14°, nhìn rõ mặt thư)
-      const slope = Math.cos(t * Math.PI * 6);
-      pitch = 8 - slope * 6;
+      // "Có lúc nằm ngang, có lúc đứng thẳng":
+      // Chu kỳ chuyển đổi nhịp nhàng giữa đứng thẳng (6°) và lượn nằm ngang (48°)
+      const flatPhase = (Math.sin(t * Math.PI * 8) + 1) / 2; // Dao động 0 đến 1
+      pitch = 6 + flatPhase * 42 + Math.sin(elapsed / 400) * 3;
 
-      // Nghiêng cánh khi lượn (-8° đến +8°)
-      roll = -slope * 8 + Math.sin(elapsed / 450) * 3;
+      // "Có lúc xoay":
+      // Yaw lượn xoay 3D mềm mại tự nhiên (-6° đến +34°)
+      yaw = 14 + Math.sin(t * Math.PI * 6) * 20;
 
-      // Hướng mũi sang phải theo phương bay (10° đến 18°)
-      yaw = 14 + Math.sin(t * Math.PI * 4) * 4;
+      // Roll nghiêng cánh tự nhiên theo nhịp lượn (-16° đến +16°)
+      roll = Math.sin(t * Math.PI * 10 + 0.5) * 14 + Math.sin(elapsed / 500) * 4;
 
       // Chiều sâu 3D
-      depth = Math.sin(t * Math.PI * 5) * 15;
+      depth = Math.sin(t * Math.PI * 7) * 20;
 
-      // Camera di chuyển mượt mà
+      // Camera di chuyển chậm rãi, mượt mà
       camera = Math.min(g.camera, Math.max(0, x - innerWidth * 0.42));
 
       const index = Math.min(captions.length - 1, Math.floor(t * captions.length));
@@ -239,12 +240,12 @@ export function createJourney(card, { guest, config, onClose }) {
         lastPhoto = index;
       }
     } else {
-      // GIAI ĐOẠN 3: Lượn từ trên cao hạ cánh xuống điểm kẹp thư và đứng thẳng
+      // GIAI ĐOẠN 3: Lượn từ trên cao hạ cánh êm ái xuống điểm kẹp thư và đứng thẳng
       const t = Math.min(1, (elapsed - riseDuration - travelDuration) / landingDuration);
       const et = ease(t);
       x = g.end;
-      y = -130 + (130 + halfHeight + 24) * et;
-      pitch = 8 * (1 - et);
+      y = -140 + (140 + halfHeight + 24) * et;
+      pitch = 10 * (1 - et); // Từ từ đứng thẳng 0°
       roll = Math.sin(et * Math.PI) * 4 * (1 - et);
       yaw = 14 * (1 - et);
       depth = 10 * (1 - et);
@@ -258,7 +259,6 @@ export function createJourney(card, { guest, config, onClose }) {
     }
 
     flyer.style.transform = `perspective(1000px) translate3d(${x - 200}px,${y - halfHeight}px,${depth}px) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
-
 
     world.style.transform = `translate3d(${-camera}px,0,0)`;
     progress.style.transform = `scaleX(${Math.min(1, elapsed / totalDuration)})`;
