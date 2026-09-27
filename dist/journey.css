@@ -10,14 +10,14 @@ body.journey-active{overflow:hidden}
 .journey-title{position:absolute;top:95px;left:24px;right:24px;text-align:center;font-size:clamp(22px,3vw,36px);font-weight:300;margin:0;opacity:.35;pointer-events:none;z-index:91000}
 .journey-title em{color:var(--gold);font-style:normal}
 .memory-viewport{position:absolute;inset:0;overflow:hidden;z-index:91500}
-.memory-world{position:absolute;left:0;top:clamp(240px,35vh,330px);height:480px;display:flex;align-items:flex-start;gap:64px;padding:0 110px;width:max-content;z-index:92000;will-change:transform;transform:translate3d(0,0,0)}
+.memory-world{position:absolute;left:0;top:clamp(220px,32vh,300px);height:450px;display:flex;align-items:flex-start;gap:36px;padding:0 50px;width:max-content;z-index:92000;will-change:transform;transform:translate3d(0,0,0)}
 .memory-world:before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);z-index:1}
-.memory-photo{position:relative;width:240px;flex:0 0 240px;margin:24px 0 0;padding:10px 10px 17px;background:var(--cream);color:var(--text);box-shadow:0 6px 14px oklch(10% .02 255 / .2);z-index:5}
+.memory-photo{position:relative;width:192px;flex:0 0 192px;margin:24px 0 0;padding:8px 8px 14px;background:var(--cream);color:var(--text);box-shadow:0 6px 14px oklch(10% .02 255 / .2);z-index:5;contain:layout style}
 .memory-photo:before,.invitation-dock:before{content:'';position:absolute;width:12px;height:39px;top:-39px;left:calc(50% - 6px);border-radius:3px;background:linear-gradient(90deg,oklch(68% .065 75),oklch(84% .075 80),oklch(62% .055 70));box-shadow:0 2px 4px oklch(10% .02 255 / .2);z-index:6}
-.memory-photo img{display:block;width:100%;height:260px;object-fit:contain;background:oklch(89% .02 85)}
-.memory-photo figcaption{font-size:12px;padding-top:14px;text-align:center;letter-spacing:1px}
+.memory-photo img{display:block;width:100%;height:235px;object-fit:contain;background:oklch(89% .02 85)}
+.memory-photo figcaption{font-size:12px;padding-top:12px;text-align:center;letter-spacing:1px}
 
-.invitation-dock{width:400px;flex:0 0 400px;position:relative;margin-top:24px;min-height:220px;z-index:999999!important}
+.invitation-dock{width:360px;flex:0 0 360px;position:relative;margin-top:24px;min-height:220px;z-index:999999!important}
 .invitation-dock:before{opacity:0;transition:opacity .4s}
 .journey.landed .invitation-dock:before{display:none!important}
 
@@ -71,11 +71,17 @@ body.journey-active{overflow:hidden}
   .journey .card-border{padding:20px 12px}
   .journey .message{font-size:14px}
 }
+@media(max-height:800px){
+  .journey-title{top:75px;font-size:24px}
+  .memory-world{top:190px;height:400px}
+  .memory-photo img{height:200px}
+  .journey-caption{bottom:18px}
+}
 @media(max-height:650px){
-  .journey-title{top:70px;font-size:22px}
-  .memory-world{top:160px}
-  .memory-photo img{height:180px}
-  .journey-caption{bottom:12px}
+  .journey-title{top:65px;font-size:20px}
+  .memory-world{top:150px;height:350px}
+  .memory-photo img{height:165px}
+  .journey-caption{bottom:10px}
 }
 @media(prefers-reduced-motion:reduce){
   .memory-photo{animation:none}

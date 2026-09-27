@@ -1,7 +1,12 @@
-import { createJourney } from '/journey.js?v=4';
+import { createJourney, preloadJourneyPhotos, preloadState } from '/journey.js?v=6';
 import { getRouteConfig } from '/guests.js';
 
 const config = getRouteConfig(location.pathname);
+
+// Tự động tải trước và giải mã ảnh WebP vào bộ nhớ ngay khi vừa vào trang
+if (config.hasJourney) {
+  preloadJourneyPhotos();
+}
 
 // If on deprecated /macnhuhuu redirect to root
 if (location.pathname === '/macnhuhuu' || location.pathname === '/macnhuhuu/') {
@@ -94,9 +99,26 @@ function closeDirectly() {
 }
 
 // 2. Mở với hành trình kỷ niệm bay 3D
-function openWithJourney() {
+async function openWithJourney() {
   if (opening) return;
   opening = true;
+
+  // Nếu người dùng vừa vào trang bấm ngay, chờ nhẹ cho 12 ảnh đầu tiên giải mã xong
+  if (preloadState.loaded < 12) {
+    seal.disabled = true;
+    openButton.disabled = true;
+    openButton.textContent = 'Đang tải kỷ niệm…';
+    await new Promise(resolve => {
+      const timer = setInterval(() => {
+        if (preloadState.loaded >= 12) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 50);
+      setTimeout(() => { clearInterval(timer); resolve(); }, 1500);
+    });
+  }
+
   stage.classList.add('unfolding');
   seal.disabled = true;
   openButton.disabled = true;

@@ -135,9 +135,9 @@ export async function makePaperRenderer(container, card) {
   if (!mesh || !container.isConnected) return null;
   const canvas = document.createElement('canvas');
   canvas.className = 'paper-webgl';
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.round(400 * dpr * 2);
-  canvas.height = Math.round(670 * dpr * 2);
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  canvas.width = Math.round(400 * dpr);
+  canvas.height = Math.round(670 * dpr);
   canvas.style.width = '400px';
   canvas.style.height = '670px';
   const gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: false });

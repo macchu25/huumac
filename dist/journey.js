@@ -1,4 +1,4 @@
-import { makePaperRenderer } from '/paper3d.js?v=4';
+import { makePaperRenderer } from '/paper3d.js?v=5';
 
 const captions = [
   'Ngày đầu bước vào giảng đường',
@@ -72,6 +72,38 @@ const captions = [
   'Và lời mời trân trọng nhất'
 ];
 
+export const preloadState = {
+  loaded: 0,
+  total: captions.length,
+  isReady: false
+};
+
+const preloadedMap = new Map();
+let preloadStarted = false;
+
+export function preloadJourneyPhotos(onProgress) {
+  if (preloadStarted) return;
+  preloadStarted = true;
+
+  captions.forEach((_, i) => {
+    const filename = String(i + 1).padStart(2, '0');
+    const img = new Image();
+    img.src = `/photos/${filename}.webp`;
+    img.onerror = () => { img.src = `/photos/${filename}.jpg`; };
+    img.decode?.().then(() => {
+      preloadState.loaded++;
+      preloadedMap.set(filename, img);
+      if (preloadState.loaded >= 15) preloadState.isReady = true;
+      onProgress?.(preloadState.loaded, preloadState.total);
+    }).catch(() => {
+      preloadState.loaded++;
+      preloadedMap.set(filename, img);
+      if (preloadState.loaded >= 15) preloadState.isReady = true;
+      onProgress?.(preloadState.loaded, preloadState.total);
+    });
+  });
+}
+
 export function createJourney(card, { guest, config, onClose }) {
   const placeholder = document.createComment('invitation-home');
   card.before(placeholder);
@@ -100,22 +132,25 @@ export function createJourney(card, { guest, config, onClose }) {
   const world = overlay.querySelector('.memory-world');
   const viewport = overlay.querySelector('.memory-viewport');
 
+  const photoItems = [];
   captions.forEach((caption, i) => {
+    const filename = String(i + 1).padStart(2, '0');
     const figure = document.createElement('figure');
     figure.className = 'memory-photo';
     const tilt = i % 3 === 0 ? 3 : (i % 3 === 1 ? -2.5 : 1.5);
     figure.style.setProperty('--tilt', `${tilt}deg`);
     figure.style.setProperty('--delay', `${-(i % 8) * 0.4}s`);
     const img = document.createElement('img');
-    img.src = `/photos/${String(i + 1).padStart(2, '0')}.jpg`;
+    img.src = `/photos/${filename}.webp`;
+    img.onerror = () => { img.src = `/photos/${filename}.jpg`; };
     img.alt = `Ảnh kỷ niệm ${i + 1}: ${caption}`;
     img.loading = 'eager';
     img.decoding = 'async';
-    img.decode?.().catch(() => {});
     const label = document.createElement('figcaption');
     label.textContent = caption;
     figure.append(img, label);
     world.append(figure);
+    photoItems.push(figure);
   });
 
   const dock = document.createElement('div');
@@ -162,6 +197,18 @@ export function createJourney(card, { guest, config, onClose }) {
   }
 
   let g = geometry();
+  let photoBounds = null;
+
+  function getPhotoBounds() {
+    if (photoBounds) return photoBounds;
+    photoBounds = photoItems.map(el => ({
+      el,
+      left: el.offsetLeft,
+      right: el.offsetLeft + el.offsetWidth,
+      visible: true
+    }));
+    return photoBounds;
+  }
 
   function showInvitation() {
     if (landed || cancelled) return;
@@ -173,6 +220,14 @@ export function createJourney(card, { guest, config, onClose }) {
     card.setAttribute('aria-hidden', 'false');
     g = geometry();
     world.style.transform = `translate3d(${-g.camera}px,0,0)`;
+    if (photoBounds) {
+      for (let i = 0; i < photoBounds.length; i++) {
+        if (!photoBounds[i].visible) {
+          photoBounds[i].visible = true;
+          photoBounds[i].el.style.visibility = 'visible';
+        }
+      }
+    }
     card.getBoundingClientRect();
     overlay.classList.add('landed');
     overlay.querySelector('.memory-viewport').scrollTop = 0;
@@ -253,6 +308,20 @@ export function createJourney(card, { guest, config, onClose }) {
       }
     }
 
+    // Culling ảnh ngoài màn hình: chỉ vẽ các ảnh trong tầm nhìn ± buffer để GPU nhẹ tuyệt đối
+    const bounds = getPhotoBounds();
+    const buffer = Math.max(innerWidth * 0.75, 600);
+    const minX = camera - buffer;
+    const maxX = camera + innerWidth + buffer;
+    for (let i = 0; i < bounds.length; i++) {
+      const p = bounds[i];
+      const isVis = p.right >= minX && p.left <= maxX;
+      if (p.visible !== isVis) {
+        p.visible = isVis;
+        p.el.style.visibility = isVis ? 'visible' : 'hidden';
+      }
+    }
+
     // Tọa độ liên tục subpixel chuẩn GPU độc lập, không lồng layer giúp triệt tiêu hoàn toàn bóng ma phân thân
     const screenX = x - camera;
     const screenY = (g.worldTop || 240) + y;
@@ -273,6 +342,7 @@ export function createJourney(card, { guest, config, onClose }) {
   function stop() {
     if (cancelled) return;
     cancelled = true;
+    photoBounds = null;
     cancelAnimationFrame(frame);
     renderer?.dispose();
     viewport.removeEventListener('wheel', handleWheel);
@@ -288,6 +358,7 @@ export function createJourney(card, { guest, config, onClose }) {
   }
 
   function resize() {
+    photoBounds = null;
     g = geometry();
     if (landed) world.style.transform = `translate3d(${-g.camera}px,0,0)`;
   }
