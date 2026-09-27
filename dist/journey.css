@@ -1,0 +1,85 @@
+.journey{position:fixed;inset:0;z-index:50;background:radial-gradient(ellipse at 50% 30%,oklch(34% .048 252),var(--ink) 75%);overflow:hidden;color:var(--cream);isolation:isolate}
+body.journey-active{overflow:hidden}
+.journey-toolbar{position:absolute;z-index:95000;inset:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:24px 32px;background:linear-gradient(var(--ink),transparent)}
+.journey-label{font-size:12px;letter-spacing:2px;color:var(--gold)}
+.journey-toolbar button{min-height:44px;padding:10px 18px;color:var(--cream);background:var(--ink);border:1px solid oklch(77% .081 81 / .4);border-radius:24px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s ease}
+.journey-tools{display:flex;gap:10px}
+.journey-toolbar button:hover{background:oklch(36% .04 255);border-color:var(--gold);transform:translateY(-1px)}
+.journey-skip{background:oklch(24% .04 255 / .9)!important;border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 3px 10px oklch(10% .02 255 / .4)}
+
+.journey-title{position:absolute;top:95px;left:24px;right:24px;text-align:center;font-size:clamp(22px,3vw,36px);font-weight:300;margin:0;opacity:.35;pointer-events:none;z-index:91000}
+.journey-title em{color:var(--gold);font-style:normal}
+.memory-viewport{position:absolute;inset:0;overflow:hidden;z-index:91500}
+.memory-world{position:absolute;left:0;top:clamp(200px,30vh,300px);height:480px;display:flex;align-items:flex-start;gap:64px;padding:0 110px;will-change:transform;perspective:1200px;perspective-origin:50% 30%;width:max-content;z-index:92000;transform-style:preserve-3d}
+.memory-world:before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);box-shadow:0 2px 5px oklch(10% .02 255 / .5);z-index:1}
+.memory-photo{position:relative;width:240px;flex:0 0 240px;margin:24px 0 0;padding:10px 10px 17px;background:var(--cream);color:var(--text);box-shadow:0 14px 24px oklch(10% .02 255 / .25);transform:rotate(var(--tilt));transform-origin:50% -24px;animation:memory-sway 5s ease-in-out infinite alternate;animation-delay:var(--delay);z-index:5}
+.memory-photo:before,.invitation-dock:before{content:'';position:absolute;width:12px;height:39px;top:-39px;left:calc(50% - 6px);border-radius:3px;background:linear-gradient(90deg,oklch(68% .065 75),oklch(84% .075 80),oklch(62% .055 70));box-shadow:1px 3px 5px oklch(10% .02 255 / .25);z-index:6}
+.memory-photo img{display:block;width:100%;height:260px;object-fit:contain;background:oklch(89% .02 85)}
+.memory-photo figcaption{font-size:12px;padding-top:14px;text-align:center;letter-spacing:1px}
+.memory-photo:last-of-type{animation:none}
+@keyframes memory-sway{to{transform:rotate(calc(var(--tilt) + 2deg))}}
+
+.invitation-dock{width:400px;flex:0 0 400px;position:relative;margin-top:24px;min-height:220px;z-index:999999!important}
+.invitation-dock:before{opacity:0;transition:opacity .4s}
+.journey.landed .invitation-dock:before{display:none!important}
+
+.flying-letter{position:absolute;top:0;left:0;width:400px;height:670px;background:none;border:0;box-shadow:none;display:block;transform-style:preserve-3d;transform-origin:50% 50%;filter:drop-shadow(10px 24px 22px oklch(8% .02 255 / .35));will-change:transform;pointer-events:none;z-index:999999!important}
+.journey-caption{position:absolute;left:20px;right:20px;bottom:38px;text-align:center;font-size:14px;color:var(--muted);line-height:1.6;z-index:93000}
+.journey-progress{height:2px;max-width:220px;margin:16px auto 0;background:oklch(55% .03 255 / .4);overflow:hidden}
+.journey-progress span{display:block;height:100%;background:var(--gold);transform:scaleX(0);transform-origin:left;will-change:transform}
+
+.journey .invitation{position:relative;inset:auto;width:100%;visibility:visible;transform:scale(.2);transform-origin:50% 0;opacity:0;z-index:999999!important;animation:none;transition:transform 1s cubic-bezier(.16,1,.3,1),opacity .45s;box-sizing:border-box}
+.journey .card-border>*{opacity:1}
+.journey.landed .invitation{opacity:1;transform:scale(1);z-index:999999!important}
+.journey.landed .memory-viewport{overflow-x:auto;overflow-y:auto;scroll-padding-top:120px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.journey.landed .memory-world{position:relative;top:0;margin-top:160px;height:auto;min-height:calc(100% - 160px);padding-bottom:90px;will-change:auto;width:max-content}
+.journey.landed .journey-title{display:none}
+.journey.landed .journey-caption{display:none}
+.journey.landed .flying-letter{display:none}
+.journey.landed .memory-photo{animation:none}
+.journey.landed .invitation-dock{min-height:0}
+.journey.landed .invitation{scroll-margin-top:120px}
+
+.stage.unfolding .flap{transform:rotateX(180deg);z-index:1;transition:transform .65s cubic-bezier(.4,0,.2,1)!important}
+.stage.unfolding .seal{opacity:0;transform:scale(.6);transition:opacity .25s,transform .3s!important}
+
+.flight-face{position:relative;width:400px;padding:14px;margin:0;background:var(--cream);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;box-sizing:border-box;text-align:center;font-size:16px}
+.flight-face .card-border{padding:24px 20px}.flight-face .card-border>*{opacity:1!important}
+.flight-face h2{font-size:34px}.flight-face .recipient{font-size:24px}.flight-face .message{font-size:14px}.flight-face .graduate{font-size:27px}.flight-face .school,.flight-face .details strong,.flight-face .details p{font-size:14px}
+.paper-band{position:absolute;left:0;width:400px;overflow:hidden;transform-origin:50% 50%;backface-visibility:visible;will-change:transform}
+.paper-band .flight-face{position:absolute;left:0}
+.stage.unfolding .invitation.taking-flight{visibility:visible;z-index:8;animation:none;transform-origin:50% 100%}.taking-flight .card-border>*{opacity:1!important}
+
+.paper-webgl{position:absolute;inset:0;width:400px;height:670px;display:block;pointer-events:none;z-index:999999!important}
+.blender-paper .paper-band{display:none}
+.envelope{cursor:pointer}
+
+.invitation,.flight-face{background-color:var(--cream);background-image:linear-gradient(oklch(94% .027 85 / .84),oklch(94% .027 85 / .84)),url('/models/paper-fiber.png');background-size:cover}
+
+
+@media(max-width:600px){
+  .journey-toolbar{padding:12px 14px;align-items:flex-start}
+  .journey-label{font-size:10px;max-width:105px;line-height:1.8}
+  .journey-toolbar button{padding:9px 14px;font-size:12px}
+  .journey-title{top:85px;font-size:24px;line-height:1.4}
+  .memory-world{top:220px;padding-inline:48px;gap:40px}
+  .memory-photo{width:190px;flex-basis:190px;padding:8px 8px 13px}
+  .memory-photo img{height:230px}
+  .invitation-dock{width:calc(100vw - 44px);flex-basis:calc(100vw - 44px)}
+  .journey.landed .memory-world{margin-top:100px;min-height:calc(100% - 100px)}
+  .journey-caption{bottom:25px;font-size:13px}
+  .journey .invitation{padding:10px}
+  .journey .card-border{padding:20px 12px}
+  .journey .message{font-size:14px}
+}
+@media(max-height:650px){
+  .journey-title{top:70px;font-size:22px}
+  .memory-world{top:160px}
+  .memory-photo img{height:180px}
+  .journey-caption{bottom:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .memory-photo{animation:none}
+  .journey .invitation{transition:none}
+}
+
