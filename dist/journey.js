@@ -111,6 +111,7 @@ export function createJourney(card, { guest, config, onClose }) {
     img.alt = `Ảnh kỷ niệm ${i + 1}: ${caption}`;
     img.loading = 'eager';
     img.decoding = 'async';
+    img.decode?.().catch(() => {});
     const label = document.createElement('figcaption');
     label.textContent = caption;
     figure.append(img, label);
