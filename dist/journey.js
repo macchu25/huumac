@@ -198,7 +198,7 @@ export function createJourney(card, { guest, config, onClose }) {
       x = g.begin;
       const targetY = 140 - 290 * t; // Từ +140px vút lên -150px
       y = targetY - 335;
-      pitch = 18 * t;
+      pitch = 48 * t;
       yaw = 20 * t;
       roll = Math.sin(t * Math.PI) * 8;
       camera = 0;
@@ -213,9 +213,9 @@ export function createJourney(card, { guest, config, onClose }) {
       const targetY = -150 - wave * 15;
       y = targetY - 335;
 
-      // Độ nghiêng cánh gió (Pitch nhẹ 6° đến 26°, không bị nằm bẹt)
+      // Độ nghiêng nằm ngang thêm 1 2 tẹo nữa (Pitch 40° đến 64°, ngả phẳng hơn về phía chân trời)
       const slope = Math.cos(t * Math.PI * 8);
-      pitch = 16 - slope * 10;
+      pitch = 52 - slope * 12;
 
       // Xoay chuyển 3D linh hoạt (Yaw ±28°), lượn qua lại tự nhiên
       yaw = Math.sin(t * Math.PI * 6) * 28;
@@ -238,7 +238,7 @@ export function createJourney(card, { guest, config, onClose }) {
       x = g.end;
       const targetY = -150 + 300 * et;
       y = targetY - 335;
-      pitch = 16 * (1 - et);
+      pitch = 52 * (1 - et);
       roll = 8 * (1 - et);
       yaw = 18 * (1 - et);
       camera = g.camera;
