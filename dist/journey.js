@@ -124,7 +124,7 @@ export function createJourney(card, { guest, config, onClose }) {
   const flyer = document.createElement('div');
   flyer.className = 'flying-letter';
   flyer.setAttribute('aria-hidden', 'true');
-  world.append(flyer);
+  viewport.append(flyer);
 
   document.body.append(overlay);
   document.body.classList.add('journey-active');
@@ -156,7 +156,8 @@ export function createJourney(card, { guest, config, onClose }) {
     const end = dock.offsetLeft + dock.offsetWidth / 2;
     const firstPhoto = world.querySelector('.memory-photo');
     const begin = (firstPhoto ? firstPhoto.offsetLeft : 0) + 60;
-    return { begin, end, camera: Math.max(0, end - innerWidth * (innerWidth > 900 ? 0.68 : 0.5)) };
+    const worldTop = world.offsetTop;
+    return { begin, end, worldTop, camera: Math.max(0, end - innerWidth * (innerWidth > 900 ? 0.68 : 0.5)) };
   }
 
   let g = geometry();
@@ -251,8 +252,10 @@ export function createJourney(card, { guest, config, onClose }) {
       }
     }
 
-    // Tọa độ liên tục subpixel chuẩn GPU cho chuyển động 120 FPS mượt như lụa
-    flyer.style.transform = `translate3d(${x - 200}px,${y}px,0) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
+    // Tọa độ liên tục subpixel chuẩn GPU độc lập, không lồng layer giúp triệt tiêu hoàn toàn bóng ma phân thân
+    const screenX = x - camera;
+    const screenY = (g.worldTop || 240) + y;
+    flyer.style.transform = `translate3d(${screenX - 200}px,${screenY}px,0) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
     world.style.transform = `translate3d(${-camera}px,0,0)`;
     progress.style.transform = `scaleX(${Math.min(1, elapsed / totalDuration)})`;
     frame = requestAnimationFrame(tick);

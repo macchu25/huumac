@@ -235,6 +235,8 @@ export async function makePaperRenderer(container, card) {
 
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clearColor(0, 0, 0, 0);
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.LEQUAL);
 
   container.append(canvas);
   container.style.height = '670px';
@@ -243,7 +245,7 @@ export async function makePaperRenderer(container, card) {
   // Ultra-fast GPU draw loop (0 CPU loops, 0 buffer re-uploads, 120+ FPS buttery smooth)
   function render(ms) {
     gl.uniform1f(timeLoc, ms / 1000);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, mesh.indices.length, gl.UNSIGNED_SHORT, 0);
   }
 
