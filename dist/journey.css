@@ -12,7 +12,7 @@ body.journey-active{overflow:hidden}
 .memory-viewport{position:absolute;inset:0;overflow:hidden;z-index:91500}
 .memory-world{position:absolute;left:0;top:clamp(240px,35vh,330px);height:480px;display:flex;align-items:flex-start;gap:64px;padding:0 110px;width:max-content;z-index:92000}
 .memory-world:before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);box-shadow:0 2px 5px oklch(10% .02 255 / .5);z-index:1}
-.memory-photo{position:relative;width:240px;flex:0 0 240px;margin:24px 0 0;padding:10px 10px 17px;background:var(--cream);color:var(--text);box-shadow:0 14px 24px oklch(10% .02 255 / .25);transform:rotate(var(--tilt));transform-origin:50% -24px;content-visibility:auto;contain-intrinsic-size:240px 320px;z-index:5}
+.memory-photo{position:relative;width:240px;flex:0 0 240px;margin:24px 0 0;padding:10px 10px 17px;background:var(--cream);color:var(--text);box-shadow:0 14px 24px oklch(10% .02 255 / .25);transform:rotate(var(--tilt));transform-origin:50% -24px;z-index:5}
 .memory-photo:before,.invitation-dock:before{content:'';position:absolute;width:12px;height:39px;top:-39px;left:calc(50% - 6px);border-radius:3px;background:linear-gradient(90deg,oklch(68% .065 75),oklch(84% .075 80),oklch(62% .055 70));box-shadow:1px 3px 5px oklch(10% .02 255 / .25);z-index:6}
 .memory-photo img{display:block;width:100%;height:260px;object-fit:contain;background:oklch(89% .02 85);image-rendering:high-quality;transform:translateZ(0);backface-visibility:hidden}
 .memory-photo figcaption{font-size:12px;padding-top:14px;text-align:center;letter-spacing:1px}

@@ -185,6 +185,7 @@ export function createJourney(card, { guest, config, onClose }) {
     if (cancelled || landed) return;
     if (startTime === null) startTime = now;
     const elapsed = now - startTime;
+    if (!g || !g.end) g = geometry();
 
     renderer?.render(elapsed);
 
@@ -265,6 +266,7 @@ export function createJourney(card, { guest, config, onClose }) {
     flyer.style.transform = `translate3d(${roundedX}px,${roundedY}px,0) scale(${scale}) rotateX(${pitch.toFixed(1)}deg) rotateY(${yaw.toFixed(1)}deg) rotateZ(${roll.toFixed(1)}deg)`;
     world.style.transform = `translate3d(${-roundedCamera}px,0,0)`;
     progress.style.transform = `scaleX(${Math.min(1, elapsed / totalDuration)})`;
+    frame = requestAnimationFrame(tick);
   }
 
   // Hỗ trợ cuộn chuột ngang khi xem các ảnh đã hạ cánh
