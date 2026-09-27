@@ -5,6 +5,7 @@
   <title>Thư mời Lễ tốt nghiệp · Mạc Như Hữu</title>
   <meta name="description" content="Thư mời lễ tốt nghiệp đại học của Mạc Như Hữu. Chạm để mở phong bì và khám phá hành trình kỷ niệm.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23162639'/%3E%3Cpath d='M5 10h22v15H5zM5 10l11 9 11-9' fill='none' stroke='%23ddc79d' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preload" as="image" href="/hero-portrait.webp" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="/style.css?v=4"><link rel="stylesheet" href="/journey.css?v=4">
 </head>
 <body>
@@ -12,7 +13,10 @@
   <header><a class="wordmark" href="./" aria-label="Trang chủ thư mời">a little milestone<span>THƯ MỜI TỐT NGHIỆP</span></a><span class="edition">MỘT HÀNH TRÌNH ĐÁNG NHỚ</span></header>
   <main>
     <div class="hero-portrait" aria-hidden="true">
-      <img src="/hero-portrait.png" alt="Mạc Như Hữu" class="hero-portrait-img" fetchpriority="high">
+      <picture class="hero-portrait-pic">
+        <source srcset="/hero-portrait.webp" type="image/webp">
+        <img src="/hero-portrait.png" alt="Mạc Như Hữu" class="hero-portrait-img" fetchpriority="high" decoding="sync">
+      </picture>
     </div>
     <section class="intro" aria-labelledby="title"><p class="eyebrow">KHÉP LẠI MỘT HÀNH TRÌNH · MỞ RA MỘT CHƯƠNG MỚI</p><h1 id="title">Niềm vui này, <br>muốn có <em>mọi người.</em></h1><p class="lead">Hữu thân mời mọi người đến chung vui<br>trong ngày tốt nghiệp của mình.</p></section>
     <section class="letter-area" aria-label="Phong bì thư mời tương tác">
