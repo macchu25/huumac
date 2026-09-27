@@ -189,41 +189,37 @@ export function createJourney(card, { guest, config, onClose }) {
     const g = geometry();
     let x, y, pitch = 0, yaw = 0, roll = 0, depth = 0, camera = 0;
 
-    // Kích thước bằng lá thư gốc, CỐ ĐỊNH 100%, không phóng to thu nhỏ
-    const scale = innerWidth < 600 ? 0.28 : 0.32;
+    // Kích thước nhỏ gọn cố định (không to, không phóng to thu nhỏ)
+    const scale = innerWidth < 600 ? 0.16 : 0.19;
 
     if (elapsed < riseDuration) {
-      // GIAI ĐOẠN 1: Cất cánh từ phong bì bay thẳng lên đường bay ngang
+      // GIAI ĐOẠN 1: Cất cánh từ phong bì bay thẳng lên trời
       const t = ease(elapsed / riseDuration);
       x = g.begin;
-      const targetY = 140 - 285 * t; // Từ +140px vút lên -145px
+      const targetY = 140 - 280 * t; // Từ +140px vút lên -140px
       y = targetY - 335;
-      pitch = 4 * t;
-      yaw = 18 * t;
-      roll = Math.sin(t * Math.PI) * 4;
-      depth = 40 + 80 * t;
+      pitch = 0;
+      yaw = 4 * t;
+      roll = 0;
       camera = 0;
       counter.textContent = 'Lá thư đang cất cánh cùng kỷ niệm…';
     } else if (elapsed < riseDuration + travelDuration) {
-      // GIAI ĐOẠN 2: "Bay ngang" theo phương ngang trên bầu trời, LÁ THƯ ĐỨNG THẲNG KHÔNG NẰM NGANG, VẪN XOAY 3D
+      // GIAI ĐOẠN 2: Lá thư luôn quay mặt về màn hình, xoay nhẹ tự nhiên (±4°), không nằm ngang, kích thước nhỏ gọn
       const t = (elapsed - riseDuration) / travelDuration;
       x = g.begin + (g.end - g.begin) * t;
 
-      // Đường bay ngang thẳng tắp trên bầu trời cao (-145px), song song dây phơi ảnh
-      const targetY = -145;
+      // Độ cao cố định trên bầu trời cao (-140px), song song dây phơi ảnh
+      const targetY = -140;
       y = targetY - 335;
 
-      // Lá thư đứng thẳng thanh thoát (Pitch ~ 4°), KHÔNG nằm ngang
-      pitch = 4;
+      // Đứng thẳng đối diện màn hình (Pitch = 0, không nằm ngang)
+      pitch = 0;
 
-      // Lá thư vẫn xoay lượn 3D tự nhiên
-      yaw = Math.sin(t * Math.PI * 8) * 32;
+      // Xoay nhẹ nhàng hướng về màn hình (chỉ dao động nhẹ ±4°)
+      yaw = Math.sin(t * Math.PI * 4) * 4;
 
-      // Nghiêng nhẹ tự nhiên
-      roll = Math.sin(t * Math.PI * 6) * 5;
-
-      // Độ sâu Z cố định nổi phía trước dải ảnh
-      depth = 120;
+      // Độ nghiêng cánh rất nhẹ (±2°)
+      roll = Math.sin(t * Math.PI * 3) * 2;
 
       // Camera bám theo mượt mà
       camera = Math.min(g.camera, Math.max(0, x - innerWidth * 0.45));
@@ -238,12 +234,11 @@ export function createJourney(card, { guest, config, onClose }) {
       const t = Math.min(1, (elapsed - riseDuration - travelDuration) / landingDuration);
       const et = ease(t);
       x = g.end;
-      const targetY = -145 + 295 * et;
+      const targetY = -140 + 290 * et;
       y = targetY - 335;
-      pitch = 4 * (1 - et);
+      pitch = 0;
       roll = 0;
-      yaw = 16 * (1 - et);
-      depth = 120 * (1 - et);
+      yaw = 4 * (1 - et);
       camera = g.camera;
       counter.textContent = config?.journeyArrival ? ('Và lời mời: ' + config.recipient) : 'Và lời mời trân trọng nhất gửi tới mọi người…';
       if (t === 1) {
@@ -252,7 +247,7 @@ export function createJourney(card, { guest, config, onClose }) {
       }
     }
 
-    // Đứng thẳng (không nghiêng phẳng), xoay chuyển 3D qua rotateY, kích thước cố định
+    // Luôn quay mặt về màn hình, kích thước nhỏ gọn cố định, xoay nhẹ
     flyer.style.transform = `translate3d(${x - 200}px,${y}px,0) scale(${scale}) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
 
     world.style.transform = `translate3d(${-camera}px,0,0)`;
