@@ -13,9 +13,11 @@ const grainReady = new Promise(resolve => {
 
 function invitationTexture(card, grain) {
   const canvas = document.createElement('canvas');
-  canvas.width = 800;
-  canvas.height = 1340;
+  // High resolution 2x canvas for crisp HD text and borders
+  canvas.width = 1200;
+  canvas.height = 2010;
   const ctx = canvas.getContext('2d');
+  ctx.scale(1.5, 1.5);
   
   // Background parchment tone
   ctx.fillStyle = '#f8f4e8';
@@ -89,8 +91,12 @@ function invitationTexture(card, grain) {
     }
   };
 
+  const recipient = card?.querySelector('.recipient')?.textContent || 'Thân mời mọi người';
+  const graduate = card?.querySelector('.graduate')?.textContent || 'Mạc Như Hữu';
+  const message = card?.querySelector('.message')?.textContent || 'Cảm ơn mọi người đã là một phần của hành trình.\nMong được cùng mọi người lưu giữ khoảnh khắc này.';
+
   textCenter('TRÂN TRỌNG KÍNH MỜI', 19, '#8c734b'); y += 6;
-  textCenter('Thân mời mọi người', 35, '#26394a', true); y += 18;
+  textCenter(recipient, 35, '#26394a', true); y += 18;
   textCenter('LỄ TỐT NGHIỆP', 48, '#1b2d3d', true);
   textCenter('ĐẠI HỌC', 20, '#8c734b'); y += 10;
 
@@ -102,9 +108,9 @@ function invitationTexture(card, grain) {
   ctx.fillText('✦', 400, y + 5);
   y += 42;
 
-  textCenter('Mạc Như Hữu', 36, '#1b2d3d', true); y += 4;
+  textCenter(graduate, 36, '#1b2d3d', true); y += 4;
   textWrapCenter('Trường Đại học Công nghệ Thông tin và Truyền thông Việt – Hàn', 21, '#475d6e', false, 620); y += 16;
-  textWrapCenter('Cảm ơn mọi người đã là một phần của hành trình.\nMong được cùng mọi người lưu giữ khoảnh khắc này.', 20, '#556979', false, 600); y += 22;
+  textWrapCenter(message, 20, '#556979', false, 600); y += 22;
 
   // Details
   const details = [
@@ -129,8 +135,11 @@ export async function makePaperRenderer(container, card) {
   if (!mesh || !container.isConnected) return null;
   const canvas = document.createElement('canvas');
   canvas.className = 'paper-webgl';
-  canvas.width = 800;
-  canvas.height = 1340;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(400 * dpr * 2);
+  canvas.height = Math.round(670 * dpr * 2);
+  canvas.style.width = '400px';
+  canvas.style.height = '670px';
   const gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: false });
   if (!gl) return null;
 
@@ -207,10 +216,17 @@ export async function makePaperRenderer(container, card) {
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, invitationTexture(card, grain));
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  const ext = gl.getExtension('EXT_texture_filter_anisotropic') || gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic');
+  if (ext) {
+    const max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT) || 4;
+    gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
+  }
 
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clearColor(0, 0, 0, 0);

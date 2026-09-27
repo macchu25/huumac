@@ -1,4 +1,4 @@
-import { createJourney } from '/journey.js';
+import { createJourney } from '/journey.js?v=4';
 import { getRouteConfig } from '/guests.js';
 
 const config = getRouteConfig(location.pathname);

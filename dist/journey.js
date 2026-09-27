@@ -1,3 +1,5 @@
+import { makePaperRenderer } from '/paper3d.js?v=4';
+
 const captions = [
   'Ngày đầu bước vào giảng đường',
   'Những người bạn mới',
@@ -127,16 +129,11 @@ export function createJourney(card, { guest, config, onClose }) {
   document.body.append(overlay);
   document.body.classList.add('journey-active');
 
-  const face = card.cloneNode(true);
-  face.className = 'flight-face';
-  face.removeAttribute('id');
-  face.removeAttribute('inert');
-  face.removeAttribute('aria-hidden');
-  face.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-  flyer.append(face);
-
-  const paperHeight = face.offsetHeight || 580;
-  flyer.style.height = paperHeight + 'px';
+  let renderer = null;
+  makePaperRenderer(flyer, card).then(val => {
+    if (cancelled) val?.dispose();
+    else renderer = val;
+  }).catch(() => {});
 
   const background = [...document.body.children].filter(el => el !== overlay && el.tagName !== 'SCRIPT');
   const inertBefore = background.map(el => el.hasAttribute('inert'));
@@ -166,6 +163,7 @@ export function createJourney(card, { guest, config, onClose }) {
     if (landed || cancelled) return;
     landed = true;
     cancelAnimationFrame(frame);
+    renderer?.dispose();
     dock.append(card);
     card.removeAttribute('inert');
     card.setAttribute('aria-hidden', 'false');
@@ -180,60 +178,55 @@ export function createJourney(card, { guest, config, onClose }) {
     card.querySelector('h2')?.focus({ preventScroll: true });
   }
 
+  let startTime = null;
   function tick(now) {
     if (cancelled || landed) return;
-    if (previousTime !== null) {
-      const delta = now - previousTime;
-      elapsed += delta > 100 ? 16.7 : delta;
-    }
-    previousTime = now;
+    if (startTime === null) startTime = now;
+    const elapsed = now - startTime;
+
+    renderer?.render(elapsed);
 
     const g = geometry();
-    let x, y, pitch, yaw, roll, depth, camera = 0;
-    // Kích thước nhỏ gọn xinh xắn (nhỏ thật sự theo yêu cầu)
-    const baseScale = innerWidth < 600 ? 0.08 : 0.10;
-    const halfHeight = paperHeight / 2;
-    let scale = baseScale;
+    let x, y, pitch = 0, yaw = 0, roll = 0, depth = 0, camera = 0;
+
+    // Giữ nguyên kích thước nhỏ nhắn, thanh thoát trong suốt chuyến bay (không to lúc nhỏ)
+    const scale = innerWidth < 600 ? 0.22 : 0.25;
 
     if (elapsed < riseDuration) {
-      // GIAI ĐOẠN 1: Cất cánh từ phong bì, lượn vút thẳng lên trời cao
+      // GIAI ĐOẠN 1: Cất cánh từ phong bì, lượn vút lên
       const t = ease(elapsed / riseDuration);
       x = g.begin;
-      y = (halfHeight + 60) - (halfHeight + 60 + 140) * t;
-      pitch = 10 * t;
-      yaw = 15 * t;
-      roll = Math.sin(t * Math.PI * 2) * 5;
-      // Đẩy Z dương về phía trước người xem để luôn nổi trên mọi thứ
-      depth = 30 + 110 * t;
+      y = 120 - 240 * t;
+      pitch = 45 * t;
+      yaw = 18 * t;
+      roll = Math.sin(t * Math.PI) * 8;
+      depth = 35 * t;
       camera = 0;
       counter.textContent = 'Lá thư đang cất cánh cùng kỷ niệm…';
     } else if (elapsed < riseDuration + travelDuration) {
-      // GIAI ĐOẠN 2: "Bay ngang bay dọc" TRÊN DẢI ẢNH: có lúc nằm ngang, có lúc đứng thẳng, có lúc xoay lượn
+      // GIAI ĐOẠN 2: "Bay ngang bay dọc" 120 FPS mượt mà qua các bức ảnh
       const t = (elapsed - riseDuration) / travelDuration;
       x = g.begin + (g.end - g.begin) * t;
 
-      // Độ cao lượn bồng bềnh trên trời cao (-165px đến -115px), hoàn toàn ở trên dải ảnh
-      const wave = Math.sin(t * Math.PI * 10);
-      const flutter = Math.sin(elapsed / 320) * 5;
-      y = -140 - wave * 22 + flutter;
+      // Quỹ đạo bay dọc nhịp nhàng: giữ an toàn trên bầu trời cao (-145px đến -95px)
+      const swoop = Math.sin(t * Math.PI * 8);
+      y = -120 - swoop * 24;
 
-      // "Có lúc nằm ngang, có lúc đứng thẳng":
-      // Chu kỳ chuyển đổi nhịp nhàng giữa đứng thẳng (6°) và lượn nằm ngang (48°)
-      const flatPhase = (Math.sin(t * Math.PI * 8) + 1) / 2; // Dao động 0 đến 1
-      pitch = 6 + flatPhase * 42 + Math.sin(elapsed / 400) * 3;
+      // Góc chúc mũi / ngóc đầu (Pitch) tự nhiên
+      const slope = Math.cos(t * Math.PI * 8);
+      pitch = 38 - slope * 15;
 
-      // "Có lúc xoay":
-      // Yaw lượn xoay 3D mềm mại tự nhiên (-6° đến +34°)
-      yaw = 14 + Math.sin(t * Math.PI * 6) * 20;
+      // Nghiêng cánh (Roll/Bank) tự nhiên
+      roll = -slope * 14;
 
-      // Roll nghiêng cánh tự nhiên theo nhịp lượn (-16° đến +16°)
-      roll = Math.sin(t * Math.PI * 10 + 0.5) * 14 + Math.sin(elapsed / 500) * 4;
+      // Hướng bay (Yaw) xoay chuyển 3D
+      yaw = 18 + Math.sin(t * Math.PI * 5) * 12;
 
-      // Chiều sâu 3D luôn ở phía trước (+120px đến +160px) so với dải ảnh (Z=0)
-      depth = 140 + Math.sin(t * Math.PI * 7) * 20;
+      // Độ sâu Z luôn nổi phía trước ảnh
+      depth = 35 + Math.sin(t * Math.PI * 6) * 15;
 
-      // Camera di chuyển chậm rãi, mượt mà
-      camera = Math.min(g.camera, Math.max(0, x - innerWidth * 0.42));
+      // Camera bám theo mượt mà
+      camera = Math.min(g.camera, Math.max(0, x - innerWidth * 0.45));
 
       const index = Math.min(captions.length - 1, Math.floor(t * captions.length));
       if (index !== lastPhoto) {
@@ -241,16 +234,15 @@ export function createJourney(card, { guest, config, onClose }) {
         lastPhoto = index;
       }
     } else {
-      // GIAI ĐOẠN 3: Lượn từ trên cao hạ cánh êm ái xuống điểm kẹp thư và đứng thẳng
+      // GIAI ĐOẠN 3: Lượn vào điểm đáp, đứng thẳng và kẹp vào dây
       const t = Math.min(1, (elapsed - riseDuration - travelDuration) / landingDuration);
       const et = ease(t);
       x = g.end;
-      y = -140 + (140 + halfHeight + 24) * et;
-      pitch = 10 * (1 - et); // Từ từ đứng thẳng 0°
-      roll = Math.sin(et * Math.PI) * 4 * (1 - et);
-      yaw = 14 * (1 - et);
-      depth = 140 * (1 - et); // Từ phía trước hạ cánh êm ái vào dây phơi
-      scale = baseScale + (1 - baseScale) * et; // Phóng to mượt mà khi đáp vào dây
+      y = -120 + (120 + 35) * et;
+      pitch = 38 * (1 - et);
+      roll = 10 * (1 - et);
+      yaw = 18 * (1 - et);
+      depth = 35 * (1 - et);
       camera = g.camera;
       counter.textContent = config?.journeyArrival ? ('Và lời mời: ' + config.recipient) : 'Và lời mời trân trọng nhất gửi tới mọi người…';
       if (t === 1) {
@@ -259,7 +251,7 @@ export function createJourney(card, { guest, config, onClose }) {
       }
     }
 
-    flyer.style.transform = `perspective(1000px) translate3d(${x - 200}px,${y - halfHeight}px,${depth}px) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
+    flyer.style.transform = `translate3d(${x - 200}px,${y}px,${depth}px) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
 
     world.style.transform = `translate3d(${-camera}px,0,0)`;
     progress.style.transform = `scaleX(${Math.min(1, elapsed / totalDuration)})`;
@@ -278,6 +270,7 @@ export function createJourney(card, { guest, config, onClose }) {
     if (cancelled) return;
     cancelled = true;
     cancelAnimationFrame(frame);
+    renderer?.dispose();
     viewport.removeEventListener('wheel', handleWheel);
     placeholder.replaceWith(card);
     overlay.remove();
