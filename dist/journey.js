@@ -109,7 +109,7 @@ export function createJourney(card, { guest, config, onClose }) {
     const img = document.createElement('img');
     img.src = `/photos/${String(i + 1).padStart(2, '0')}.jpg`;
     img.alt = `Ảnh kỷ niệm ${i + 1}: ${caption}`;
-    img.loading = i < 8 ? 'eager' : 'lazy';
+    img.loading = 'eager';
     img.decoding = 'async';
     const label = document.createElement('figcaption');
     label.textContent = caption;
@@ -232,13 +232,6 @@ export function createJourney(card, { guest, config, onClose }) {
       if (index !== lastPhoto) {
         counter.textContent = `${String(index + 1).padStart(2, '0')} / ${captions.length} · ${captions[index]}`;
         lastPhoto = index;
-        // Chủ động tải trước 6 ảnh tiếp theo để luôn sẵn sàng trong GPU, không giật và không mờ
-        for (let p = index + 1; p <= Math.min(captions.length - 1, index + 6); p++) {
-          const nextImg = world.children[p]?.querySelector('img');
-          if (nextImg && nextImg.loading === 'lazy') {
-            nextImg.loading = 'eager';
-          }
-        }
       }
     } else {
       // GIAI ĐOẠN 3: Lượn từ trên cao hạ cánh êm ái xuống điểm kẹp thư và đứng thẳng
@@ -258,13 +251,9 @@ export function createJourney(card, { guest, config, onClose }) {
       }
     }
 
-    // Tọa độ làm tròn chuẩn pixel giúp khử nhòe subpixel, hình ảnh và lá thư luôn sắc nét 120 FPS
-    const roundedCamera = Math.round(camera);
-    const roundedX = Math.round(x - 200);
-    const roundedY = Math.round(y);
-
-    flyer.style.transform = `translate3d(${roundedX}px,${roundedY}px,0) scale(${scale}) rotateX(${pitch.toFixed(1)}deg) rotateY(${yaw.toFixed(1)}deg) rotateZ(${roll.toFixed(1)}deg)`;
-    world.style.transform = `translate3d(${-roundedCamera}px,0,0)`;
+    // Tọa độ liên tục subpixel chuẩn GPU cho chuyển động 120 FPS mượt như lụa
+    flyer.style.transform = `translate3d(${x - 200}px,${y}px,0) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
+    world.style.transform = `translate3d(${-camera}px,0,0)`;
     progress.style.transform = `scaleX(${Math.min(1, elapsed / totalDuration)})`;
     frame = requestAnimationFrame(tick);
   }
