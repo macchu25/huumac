@@ -1,4 +1,3 @@
-import { makePaperRenderer } from '/paper3d.js';
 
 const captions = [
   'Ngày đầu bước vào giảng đường',
@@ -260,13 +259,6 @@ export function createJourney(card, { guest, config, onClose }) {
 
     flyer.style.transform = `perspective(1000px) translate3d(${x - 200}px,${y - halfHeight}px,${depth}px) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
 
-    // Hiệu ứng sóng giấy nhẹ khi không có WebGL
-    if (!renderer) {
-      bands.forEach((band, i) => {
-        const wave = Math.sin(elapsed / 400 - i * 0.45);
-        band.style.transform = `translateZ(${wave * 5}px) rotateX(${Math.cos(elapsed / 400 - i * 0.45) * 2}deg)`;
-      });
-    }
 
     world.style.transform = `translate3d(${-camera}px,0,0)`;
     progress.style.transform = `scaleX(${Math.min(1, elapsed / totalDuration)})`;
@@ -285,7 +277,6 @@ export function createJourney(card, { guest, config, onClose }) {
     if (cancelled) return;
     cancelled = true;
     cancelAnimationFrame(frame);
-    renderer?.dispose();
     viewport.removeEventListener('wheel', handleWheel);
     placeholder.replaceWith(card);
     overlay.remove();
