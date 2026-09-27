@@ -45,13 +45,15 @@ h2{font-size:clamp(25px,3vw,36px)}.graduate{font-size:clamp(22px,2.5vw,28px)}
 @media(max-width:520px){main{padding:12px 20px 18px;gap:6px}header{padding:28px 25px 12px}.frame{inset:9px}.stage{height:260px;--sway:32px}.stage.open{height:var(--open-height,780px)}.envelope{width:92%}.invitation{padding:9px;left:3%;width:94%}.card-border{padding:20px 12px}.lead{font-size:15px;line-height:1.7;max-width:29ch}.eyebrow{font-size:10px;letter-spacing:1.2px;max-width:290px}.envelope-caption{bottom:13px}.envelope-caption span{font-size:12px}.envelope-caption i{margin-top:3px;font-size:14px}.recipient{font-size:20px}.message br{display:none}.card-kicker{letter-spacing:1.6px}.controls{padding-top:24px}footer{padding:20px 24px 30px}.signoff{line-height:1.7}.rule{margin-inline:20px}}
 @media(max-width:360px){h1{font-size:34px}.stage{height:230px}.seal{width:48px;height:48px;left:calc(50% - 24px)}.envelope-caption i{display:none}.card-border{padding-inline:10px}.degree{letter-spacing:3px}}
 
-/* Hero portrait positioned behind the invitation letter */
+/* Hero portrait positioned flush at bottom-left corner and enlarged */
+.intro{position:relative;z-index:4}
+.letter-area{position:relative;z-index:5}
 .envelope{z-index:5}
-.hero-portrait{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:410px;height:430px;max-width:92vw;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;z-index:1;user-select:none;transition:transform 1s cubic-bezier(.16,1,.3,1),opacity .8s ease}
-.hero-portrait-img{width:100%;height:100%;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 15px 35px oklch(10% .02 255 / .5)) drop-shadow(0 0 50px oklch(77% .081 81 / .15));-webkit-mask-image:linear-gradient(to top,transparent 0%,black 18%,black 100%);mask-image:linear-gradient(to top,transparent 0%,black 18%,black 100%);animation:hero-portrait-appear 1.2s cubic-bezier(.16,1,.3,1) both}
-.stage.open .hero-portrait{opacity:.4;transform:translateX(-50%) translateY(25px) scale(.94)}
-@keyframes hero-portrait-appear{from{opacity:0;transform:translateY(35px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(max-width:1050px){.hero-portrait{width:350px;height:380px}}
-@media(max-width:520px){.hero-portrait{width:270px;height:300px;bottom:0}}
-@media(max-width:360px){.hero-portrait{width:230px;height:260px}}
+.hero-portrait{position:fixed;bottom:0;left:0;height:clamp(540px,72vh,820px);width:auto;max-width:48vw;display:flex;align-items:flex-end;justify-content:flex-start;pointer-events:none;z-index:1;user-select:none;transition:transform 1s cubic-bezier(.16,1,.3,1),opacity .8s ease}
+.hero-portrait-img{width:auto;height:100%;max-height:100%;object-fit:contain;object-position:bottom left;filter:drop-shadow(0 20px 40px oklch(10% .02 255 / .6)) drop-shadow(0 0 50px oklch(77% .081 81 / .15));-webkit-mask-image:linear-gradient(to top,transparent 0%,black 10%,black 100%),linear-gradient(to right,black 85%,transparent 100%);mask-image:linear-gradient(to top,transparent 0%,black 10%,black 100%),linear-gradient(to right,black 85%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect;animation:hero-portrait-appear 1.2s cubic-bezier(.16,1,.3,1) both}
+body:has(.stage.open) .hero-portrait{opacity:.35;transform:translateY(30px) scale(.95)}
+@keyframes hero-portrait-appear{from{opacity:0;transform:translateY(40px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:1050px){.hero-portrait{height:clamp(400px,56vh,580px);max-width:55vw}}
+@media(max-width:768px){.hero-portrait{position:absolute;bottom:0;left:0;height:clamp(320px,44vh,440px);max-width:65vw;opacity:.85}}
+@media(max-width:520px){.hero-portrait{height:clamp(260px,38vh,350px);max-width:70vw;opacity:.75}}
 
