@@ -159,6 +159,8 @@ export function createJourney(card, { guest, config, onClose }) {
     return { begin, end, camera: Math.max(0, end - innerWidth * (innerWidth > 900 ? 0.68 : 0.5)) };
   }
 
+  let g = geometry();
+
   function showInvitation() {
     if (landed || cancelled) return;
     landed = true;
@@ -167,7 +169,7 @@ export function createJourney(card, { guest, config, onClose }) {
     dock.append(card);
     card.removeAttribute('inert');
     card.setAttribute('aria-hidden', 'false');
-    const g = geometry();
+    g = geometry();
     world.style.transform = `translate3d(${-g.camera}px,0,0)`;
     card.getBoundingClientRect();
     overlay.classList.add('landed');
@@ -186,8 +188,7 @@ export function createJourney(card, { guest, config, onClose }) {
 
     renderer?.render(elapsed);
 
-    const g = geometry();
-    let x, y, pitch = 0, yaw = 0, roll = 0, depth = 0, camera = 0;
+    let x, y, pitch = 0, yaw = 0, roll = 0, camera = 0;
 
     // Kích thước nhỏ gọn cố định (không to, không phóng to thu nhỏ)
     const scale = innerWidth < 600 ? 0.18 : 0.22;
@@ -230,6 +231,13 @@ export function createJourney(card, { guest, config, onClose }) {
       if (index !== lastPhoto) {
         counter.textContent = `${String(index + 1).padStart(2, '0')} / ${captions.length} · ${captions[index]}`;
         lastPhoto = index;
+        // Chủ động tải trước 6 ảnh tiếp theo để luôn sẵn sàng trong GPU, không giật và không mờ
+        for (let p = index + 1; p <= Math.min(captions.length - 1, index + 6); p++) {
+          const nextImg = world.children[p]?.querySelector('img');
+          if (nextImg && nextImg.loading === 'lazy') {
+            nextImg.loading = 'eager';
+          }
+        }
       }
     } else {
       // GIAI ĐOẠN 3: Lượn từ trên cao hạ cánh êm ái xuống điểm kẹp thư và đứng thẳng
@@ -249,12 +257,14 @@ export function createJourney(card, { guest, config, onClose }) {
       }
     }
 
-    // Xoay 3D sống động (Pitch, Yaw, Roll), kích thước nhỏ gọn cố định, không méo dãn
-    flyer.style.transform = `translate3d(${x - 200}px,${y}px,0) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
+    // Tọa độ làm tròn chuẩn pixel giúp khử nhòe subpixel, hình ảnh và lá thư luôn sắc nét 120 FPS
+    const roundedCamera = Math.round(camera);
+    const roundedX = Math.round(x - 200);
+    const roundedY = Math.round(y);
 
-    world.style.transform = `translate3d(${-camera}px,0,0)`;
+    flyer.style.transform = `translate3d(${roundedX}px,${roundedY}px,0) scale(${scale}) rotateX(${pitch.toFixed(1)}deg) rotateY(${yaw.toFixed(1)}deg) rotateZ(${roll.toFixed(1)}deg)`;
+    world.style.transform = `translate3d(${-roundedCamera}px,0,0)`;
     progress.style.transform = `scaleX(${Math.min(1, elapsed / totalDuration)})`;
-    frame = requestAnimationFrame(tick);
   }
 
   // Hỗ trợ cuộn chuột ngang khi xem các ảnh đã hạ cánh
@@ -283,7 +293,8 @@ export function createJourney(card, { guest, config, onClose }) {
   }
 
   function resize() {
-    if (landed) world.style.transform = `translate3d(${-geometry().camera}px,0,0)`;
+    g = geometry();
+    if (landed) world.style.transform = `translate3d(${-g.camera}px,0,0)`;
   }
 
   function visibility() {

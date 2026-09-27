@@ -162,16 +162,16 @@ export async function makePaperRenderer(container, card) {
       tex = uv;
       float settle = 1.0 - smoothstep(23.5, 25.5, time);
       
-      // Natural 3D paper flutter & surface wave
-      float waveY = sin(position.y * 3.0 - time * 6.0) * 0.12 * settle;
-      float waveX = cos(position.x * 3.5 + time * 4.5) * 0.07 * settle;
-      float edgeCurl = (position.x * position.x * 0.05 - 0.02) * settle;
+      // Smooth, natural aerodynamic curvature (zero jitter/vibration)
+      float waveY = sin(position.y * 1.6 - time * 1.5) * 0.025;
+      float waveX = cos(position.x * 2.2 + time * 1.2) * 0.018;
+      float edgeCurl = position.x * position.x * 0.02;
       
       vec3 p = position;
       p.z += (waveY + waveX + edgeCurl);
       
       // Dynamic lighting shading along paper curves
-      shade = 0.94 + p.z * 0.42 + (uv.y - 0.5) * 0.08;
+      shade = 0.95 + p.z * 0.35 + (uv.y - 0.5) * 0.06;
       gl_Position = vec4(p.x / 1.08, p.y / 1.76, p.z * 0.18, 1.0 - p.z * 0.12);
     }
   `));
