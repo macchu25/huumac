@@ -139,20 +139,6 @@ export function createJourney(card, { guest, config, onClose }) {
 
   const paperHeight = face.offsetHeight || 580;
   flyer.style.height = paperHeight + 'px';
-  const bands = [];
-  for (let i = 0; i < 12; i++) {
-    const band = document.createElement('div');
-    band.className = 'paper-band';
-    const height = paperHeight / 12;
-    band.style.top = (height * i) + 'px';
-    band.style.height = (height + 1) + 'px';
-    const content = face.cloneNode(true);
-    content.style.top = (-height * i) + 'px';
-    band.append(content);
-    flyer.append(band);
-    bands.push(band);
-  }
-  face.remove();
 
   const background = [...document.body.children].filter(el => el !== overlay && el.tagName !== 'SCRIPT');
   const inertBefore = background.map(el => el.hasAttribute('inert'));
@@ -162,12 +148,6 @@ export function createJourney(card, { guest, config, onClose }) {
   const close = overlay.querySelector('.journey-close');
   const counter = overlay.querySelector('.journey-counter');
   const progress = overlay.querySelector('.journey-progress span');
-
-  let renderer = null;
-  makePaperRenderer(flyer, card).then(value => {
-    if (cancelled) value?.dispose();
-    else renderer = value;
-  }).catch(() => {});
 
   let previousTime = null;
   let frame, landed = false, cancelled = false, lastPhoto = -1, elapsed = 0;
@@ -209,47 +189,47 @@ export function createJourney(card, { guest, config, onClose }) {
       elapsed += delta > 100 ? 16.7 : delta;
     }
     previousTime = now;
-    renderer?.render(elapsed);
 
     const g = geometry();
     let x, y, pitch, yaw, roll, depth, camera = 0;
-    // Kích thước nhỏ gọn thanh thoát, không bị to quá cỡ
-    const scale = innerWidth < 600 ? 0.22 : 0.27;
+    const baseScale = innerWidth < 600 ? 0.22 : 0.28;
+    const halfHeight = paperHeight / 2;
+    let scale = baseScale;
 
     if (elapsed < riseDuration) {
-      // GIAI ĐOẠN 1: Cất cánh từ phong bì, lượn vút lên trời cao trên dải ảnh
+      // GIAI ĐOẠN 1: Cất cánh từ phong bì, lượn vút thẳng lên trời cao
       const t = ease(elapsed / riseDuration);
       x = g.begin;
-      y = 120 - 265 * t; // Từ 120px vút lên trời ở mức -145px
-      pitch = 45 * t; // Góc lượn đón gió thanh thoát
-      yaw = 18 * t; // Mũi hướng về phía trước
-      roll = Math.sin(t * Math.PI * 2) * 8;
+      y = (halfHeight + 60) - (halfHeight + 60 + 130) * t; // Từ phong bì vút lên độ cao -130px trên trời
+      pitch = 8 * t;
+      yaw = 14 * t;
+      roll = Math.sin(t * Math.PI * 2) * 5;
       depth = 15 * t;
       camera = 0;
       counter.textContent = 'Lá thư đang cất cánh cùng kỷ niệm…';
     } else if (elapsed < riseDuration + travelDuration) {
-      // GIAI ĐOẠN 2: "Bay ngang bay dọc" TRÊN DẢI ẢNH, tuyệt đối không đâm xuyên vào ảnh
+      // GIAI ĐOẠN 2: "Bay ngang bay dọc" Ở TRÊN TRỜI, HOÀN TOÀN TRÊN DẢI ẢNH
       const t = (elapsed - riseDuration) / travelDuration;
       x = g.begin + (g.end - g.begin) * t;
 
-      // Quỹ đạo bay lượn nhịp nhàng ở tầng trời trên dải ảnh (-175px đến -115px)
-      // Dây phơi và ảnh ở phía dưới (y >= 0), thư bay bổng hoàn toàn ở trên cao
+      // Quỹ đạo nhấp nhô lượn sóng trên trời cao (-150px đến -110px)
+      // Đáy thư luôn ở trên mức -45px, tuyệt đối không chạm hay đâm xuyên qua ảnh!
       const swoop = Math.sin(t * Math.PI * 6);
-      const flutter = Math.sin(elapsed / 260) * 6;
-      y = -145 - swoop * 26 + flutter;
+      const flutter = Math.sin(elapsed / 260) * 4;
+      y = -130 - swoop * 20 + flutter;
 
-      // Góc chúc mũi / ngóc đầu (Pitch)
+      // Góc chúc mũi / ngóc đầu nhẹ tự nhiên (chỉ 2° đến 14°, nhìn rõ mặt thư)
       const slope = Math.cos(t * Math.PI * 6);
-      pitch = 45 - slope * 12 + Math.sin(elapsed / 380) * 3;
+      pitch = 8 - slope * 6;
 
-      // Nghiêng cánh (Roll/Bank)
-      roll = -slope * 12 + Math.sin(elapsed / 550) * 5;
+      // Nghiêng cánh khi lượn (-8° đến +8°)
+      roll = -slope * 8 + Math.sin(elapsed / 450) * 3;
 
-      // Hướng bay (Yaw)
-      yaw = 18 + Math.sin(t * Math.PI * 4) * 5;
+      // Hướng mũi sang phải theo phương bay (10° đến 18°)
+      yaw = 14 + Math.sin(t * Math.PI * 4) * 4;
 
-      // Độ sâu 3D
-      depth = Math.sin(t * Math.PI * 5) * 20;
+      // Chiều sâu 3D
+      depth = Math.sin(t * Math.PI * 5) * 15;
 
       // Camera di chuyển mượt mà
       camera = Math.min(g.camera, Math.max(0, x - innerWidth * 0.42));
@@ -260,15 +240,16 @@ export function createJourney(card, { guest, config, onClose }) {
         lastPhoto = index;
       }
     } else {
-      // GIAI ĐOẠN 3: Lượn từ trên cao đáp nhẹ nhàng xuống điểm kẹp thư
+      // GIAI ĐOẠN 3: Lượn từ trên cao hạ cánh xuống điểm kẹp thư và đứng thẳng
       const t = Math.min(1, (elapsed - riseDuration - travelDuration) / landingDuration);
       const et = ease(t);
       x = g.end;
-      y = -145 + (145 + 24) * et;
-      pitch = 45 * (1 - et); // Từ tư thế lượn trên cao từ từ đứng thẳng
-      roll = Math.sin(et * Math.PI) * 5 * (1 - et);
-      yaw = 18 * (1 - et);
-      depth = 12 * (1 - et);
+      y = -130 + (130 + halfHeight + 24) * et;
+      pitch = 8 * (1 - et);
+      roll = Math.sin(et * Math.PI) * 4 * (1 - et);
+      yaw = 14 * (1 - et);
+      depth = 10 * (1 - et);
+      scale = baseScale + (1 - baseScale) * et; // Phóng to mượt mà khi đáp vào dây
       camera = g.camera;
       counter.textContent = config?.journeyArrival ? ('Và lời mời: ' + config.recipient) : 'Và lời mời trân trọng nhất gửi tới mọi người…';
       if (t === 1) {
@@ -277,7 +258,7 @@ export function createJourney(card, { guest, config, onClose }) {
       }
     }
 
-    flyer.style.transform = `perspective(1000px) translate3d(${x - 200}px,${y}px,${depth}px) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
+    flyer.style.transform = `perspective(1000px) translate3d(${x - 200}px,${y - halfHeight}px,${depth}px) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
 
     // Hiệu ứng sóng giấy nhẹ khi không có WebGL
     if (!renderer) {

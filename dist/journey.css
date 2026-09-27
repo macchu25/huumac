@@ -23,7 +23,7 @@ body.journey-active{overflow:hidden}
 .invitation-dock:before{opacity:0;transition:opacity .4s}
 .journey.landed .invitation-dock:before{display:none!important}
 
-.flying-letter{position:absolute;top:0;left:0;width:400px;height:670px;background:none;border:0;box-shadow:none;display:block;transform-style:preserve-3d;transform-origin:50% 50%;filter:drop-shadow(10px 24px 22px oklch(8% .02 255 / .35));will-change:transform;pointer-events:none;z-index:999999!important}
+.flying-letter{position:absolute;top:0;left:0;width:400px;background:none;border:0;box-shadow:none;display:block;transform-style:preserve-3d;transform-origin:50% 50%;filter:drop-shadow(0 15px 30px oklch(8% .02 255 / .4));will-change:transform;pointer-events:none;z-index:999999!important}
 .journey-caption{position:absolute;left:20px;right:20px;bottom:38px;text-align:center;font-size:14px;color:var(--muted);line-height:1.6;z-index:93000}
 .journey-progress{height:2px;max-width:220px;margin:16px auto 0;background:oklch(55% .03 255 / .4);overflow:hidden}
 .journey-progress span{display:block;height:100%;background:var(--gold);transform:scaleX(0);transform-origin:left;will-change:transform}
