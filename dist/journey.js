@@ -189,43 +189,37 @@ export function createJourney(card, { guest, config, onClose }) {
     const g = geometry();
     let x, y, pitch = 0, yaw = 0, roll = 0, depth = 0, camera = 0;
 
-    // Giữ nguyên kích thước nhỏ nhắn, thanh thoát trong suốt chuyến bay (không to lúc nhỏ)
-    const scale = innerWidth < 600 ? 0.22 : 0.25;
+    // Kích thước thu nhỏ lại nhỏ nhắn, CỐ ĐỊNH 100%, không phóng to thu nhỏ
+    const scale = innerWidth < 600 ? 0.13 : 0.15;
 
     if (elapsed < riseDuration) {
-      // GIAI ĐOẠN 1: Cất cánh từ phong bì, lượn vút lên bầu trời cao
+      // GIAI ĐOẠN 1: Cất cánh từ phong bì bay thẳng lên đường bay ngang
       const t = ease(elapsed / riseDuration);
       x = g.begin;
-      const targetY = 160 - 325 * t; // Từ +160px vút lên -165px trên bầu trời
+      const targetY = 140 - 290 * t; // Từ +140px bay thẳng lên -150px
       y = targetY - 335;
-      pitch = 40 * t;
-      yaw = 18 * t;
-      roll = Math.sin(t * Math.PI) * 8;
-      depth = 40 + 95 * t;
+      pitch = 28 * t;
+      yaw = 16 * t;
+      roll = 0;
+      depth = 40 + 80 * t;
       camera = 0;
       counter.textContent = 'Lá thư đang cất cánh cùng kỷ niệm…';
     } else if (elapsed < riseDuration + travelDuration) {
-      // GIAI ĐOẠN 2: "Bay ngang bay dọc" 120 FPS mượt mà trên bầu trời cao, HOÀN TOÀN TRÊN DẢI ẢNH
+      // GIAI ĐOẠN 2: "Bay đường ngang", giữ nguyên độ cao trên bầu trời cao
       const t = (elapsed - riseDuration) / travelDuration;
       x = g.begin + (g.end - g.begin) * t;
 
-      // Độ cao lượn bồng bềnh trên bầu trời cao (-190px đến -140px), cách xa dây phơi và dải ảnh
-      const swoop = Math.sin(t * Math.PI * 8);
-      const targetY = -165 - swoop * 25;
+      // Đường bay ngang thẳng tắp trên bầu trời cao (-150px), song song dây phơi ảnh
+      const targetY = -150;
       y = targetY - 335;
 
-      // Góc chúc mũi / ngóc đầu (Pitch) tự nhiên
-      const slope = Math.cos(t * Math.PI * 8);
-      pitch = 35 - slope * 14;
+      // Góc bay ngang ổn định, thanh thoát
+      pitch = 28;
+      roll = 0;
+      yaw = 16;
 
-      // Nghiêng cánh (Roll/Bank) tự nhiên
-      roll = -slope * 14;
-
-      // Hướng bay (Yaw) xoay chuyển 3D
-      yaw = 18 + Math.sin(t * Math.PI * 5) * 12;
-
-      // Chiều sâu Z luôn ở phía trước dải ảnh
-      depth = 135 + Math.sin(t * Math.PI * 6) * 15;
+      // Độ sâu Z cố định nổi phía trước dải ảnh
+      depth = 120;
 
       // Camera bám theo mượt mà
       camera = Math.min(g.camera, Math.max(0, x - innerWidth * 0.45));
@@ -240,12 +234,12 @@ export function createJourney(card, { guest, config, onClose }) {
       const t = Math.min(1, (elapsed - riseDuration - travelDuration) / landingDuration);
       const et = ease(t);
       x = g.end;
-      const targetY = -165 + (165 + 160) * et;
+      const targetY = -150 + 300 * et;
       y = targetY - 335;
-      pitch = 35 * (1 - et);
-      roll = 10 * (1 - et);
-      yaw = 18 * (1 - et);
-      depth = 135 * (1 - et);
+      pitch = 28 * (1 - et);
+      roll = 0;
+      yaw = 16 * (1 - et);
+      depth = 120 * (1 - et);
       camera = g.camera;
       counter.textContent = config?.journeyArrival ? ('Và lời mời: ' + config.recipient) : 'Và lời mời trân trọng nhất gửi tới mọi người…';
       if (t === 1) {
