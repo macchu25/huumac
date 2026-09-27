@@ -252,7 +252,8 @@ export function createJourney(card, { guest, config, onClose }) {
       }
     }
 
-    flyer.style.transform = `translate3d(${x - 200}px,${y}px,${depth}px) scale(${scale}) rotateX(${pitch}deg) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
+    // Đứng thẳng (không nghiêng phẳng), xoay chuyển 3D qua rotateY, kích thước cố định
+    flyer.style.transform = `translate3d(${x - 200}px,${y}px,0) scale(${scale}) rotateY(${yaw}deg) rotateZ(${roll}deg)`;
 
     world.style.transform = `translate3d(${-camera}px,0,0)`;
     progress.style.transform = `scaleX(${Math.min(1, elapsed / totalDuration)})`;
