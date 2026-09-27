@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Một cột mốc, một lời mời · Lễ tốt nghiệp</title>
+  <meta name="description" content="Một lời mời thật đặc biệt tới lễ tốt nghiệp đại học. Chạm để mở phong bì và khám phá tấm thiệp bên trong.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23162639'/%3E%3Cpath d='M5 10h22v15H5zM5 10l11 9 11-9' fill='none' stroke='%23ddc79d' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="frame" aria-hidden="true"></div>
+  <header><a class="wordmark" href="./" aria-label="Trang chủ thư mời">a little milestone<span>THƯ MỜI TỐT NGHIỆP</span></a><span class="edition">MỘT HÀNH TRÌNH ĐÁNG NHỚ</span></header>
+  <main>
+    <section class="intro" aria-labelledby="title"><p class="eyebrow">KHÉP LẠI MỘT HÀNH TRÌNH · MỞ RA MỘT CHƯƠNG MỚI</p><h1 id="title">Niềm vui này,<br>muốn có <em>bạn.</em></h1><p class="lead">Một cột mốc sẽ trọn vẹn hơn<br>khi có những người thương ở bên.</p></section>
+    <section class="letter-area" aria-label="Phong bì thư mời tương tác">
+      <div class="stage" id="stage">
+        <div class="envelope" id="envelope">
+          <div class="envelope-back"></div>
+          <article class="invitation" id="invitation" aria-hidden="true" inert>
+            <div class="card-border">
+              <svg class="cap" viewBox="0 0 80 48" fill="none" aria-hidden="true"><path d="M7 17 40 4l33 13-33 14L7 17Z" stroke="currentColor" stroke-width="1.5"/><path d="M21 24v13c11 8 27 8 38 0V24M71 19v19" stroke="currentColor" stroke-width="1.5"/><circle cx="71" cy="40" r="2" fill="currentColor"/></svg>
+              <p class="card-kicker">TRÂN TRỌNG KÍNH MỜI</p>
+              <h2 tabindex="-1" id="cardTitle">Lễ tốt nghiệp</h2>
+              <p class="degree">ĐẠI HỌC</p>
+              <div class="rule"><span>✦</span></div>
+              <p class="graduate">[Tên của bạn]</p>
+              <p class="school">[Tên trường đại học]</p>
+              <p class="message">Cảm ơn bạn đã là một phần của hành trình.<br>Mong được cùng bạn lưu giữ khoảnh khắc này.</p>
+              <div class="details"><div><span>THỜI GIAN</span><strong>[Giờ] · [Ngày / Tháng / Năm]</strong></div><div><span>ĐỊA ĐIỂM</span><strong>[Địa điểm tổ chức]</strong><p>[Địa chỉ cụ thể]</p></div></div>
+              <p class="signoff">Hẹn gặp bạn trong ngày đặc biệt này!</p>
+            </div>
+          </article>
+          <div class="pocket"></div><div class="fold-left"></div><div class="fold-right"></div><div class="fold-bottom"></div>
+          <div class="flap"></div>
+          <button class="seal" id="seal" aria-label="Mở phong bì thư mời tốt nghiệp" aria-controls="invitation" aria-expanded="false"><span>✦</span></button>
+          <div class="envelope-caption" aria-hidden="true"><span>DÀNH RIÊNG CHO BẠN</span><i>with love</i></div>
+        </div>
+        <div class="confetti" id="confetti" aria-hidden="true"></div>
+      </div>
+      <div class="controls"><button class="open-button" id="openButton" aria-controls="invitation" aria-expanded="false">Mở thư mời <span aria-hidden="true">↗</span></button><p class="hint" id="hint">Chạm vào dấu sáp để mở một niềm vui.</p><button id="reset" class="reset" hidden>↶ Gấp lại thư</button></div>
+      <p class="sr-only" id="status" role="status"></p>
+    </section>
+  </main>
+  <footer><span>MỘT CỘT MỐC. NGÀN KỶ NIỆM.</span><span class="footer-star" aria-hidden="true">✦</span><span>GỬI BẠN, BẰNG TẤT CẢ NIỀM VUI.</span></footer>
+  <script src="script.js"></script>
+</body>
+</html>

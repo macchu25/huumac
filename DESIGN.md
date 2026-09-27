@@ -1,0 +1,2 @@
+# Design
+Deep ink-blue ceremonial background with warm ivory stationery and antique gold details. Physical scene: a loved one opening a keepsake graduation letter in a quiet evening. Bodoni Moda display typography and Segoe UI body. A centered interactive envelope is the main surface, with an ivory invitation emerging above it. Motion follows flap opening, card extraction, then a small celebratory bounce requested by the user. Reduced-motion mode reveals immediately.
