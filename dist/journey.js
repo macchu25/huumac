@@ -190,8 +190,8 @@ export function createJourney(card, { guest, config, onClose }) {
 
     const g = geometry();
     let x, y, pitch, yaw, roll, depth, camera = 0;
-    // Kích thước nhỏ nhắn, thanh thoát
-    const baseScale = innerWidth < 600 ? 0.15 : 0.19;
+    // Kích thước nhỏ gọn xinh xắn (nhỏ thật sự theo yêu cầu)
+    const baseScale = innerWidth < 600 ? 0.08 : 0.10;
     const halfHeight = paperHeight / 2;
     let scale = baseScale;
 
@@ -203,7 +203,8 @@ export function createJourney(card, { guest, config, onClose }) {
       pitch = 10 * t;
       yaw = 15 * t;
       roll = Math.sin(t * Math.PI * 2) * 5;
-      depth = 15 * t;
+      // Đẩy Z dương về phía trước người xem để luôn nổi trên mọi thứ
+      depth = 30 + 110 * t;
       camera = 0;
       counter.textContent = 'Lá thư đang cất cánh cùng kỷ niệm…';
     } else if (elapsed < riseDuration + travelDuration) {
@@ -228,8 +229,8 @@ export function createJourney(card, { guest, config, onClose }) {
       // Roll nghiêng cánh tự nhiên theo nhịp lượn (-16° đến +16°)
       roll = Math.sin(t * Math.PI * 10 + 0.5) * 14 + Math.sin(elapsed / 500) * 4;
 
-      // Chiều sâu 3D
-      depth = Math.sin(t * Math.PI * 7) * 20;
+      // Chiều sâu 3D luôn ở phía trước (+120px đến +160px) so với dải ảnh (Z=0)
+      depth = 140 + Math.sin(t * Math.PI * 7) * 20;
 
       // Camera di chuyển chậm rãi, mượt mà
       camera = Math.min(g.camera, Math.max(0, x - innerWidth * 0.42));
@@ -248,7 +249,7 @@ export function createJourney(card, { guest, config, onClose }) {
       pitch = 10 * (1 - et); // Từ từ đứng thẳng 0°
       roll = Math.sin(et * Math.PI) * 4 * (1 - et);
       yaw = 14 * (1 - et);
-      depth = 10 * (1 - et);
+      depth = 140 * (1 - et); // Từ phía trước hạ cánh êm ái vào dây phơi
       scale = baseScale + (1 - baseScale) * et; // Phóng to mượt mà khi đáp vào dây
       camera = g.camera;
       counter.textContent = config?.journeyArrival ? ('Và lời mời: ' + config.recipient) : 'Và lời mời trân trọng nhất gửi tới mọi người…';
