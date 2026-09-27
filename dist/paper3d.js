@@ -13,11 +13,11 @@ const grainReady = new Promise(resolve => {
 
 function invitationTexture(card, grain) {
   const canvas = document.createElement('canvas');
-  // High resolution 2x canvas for crisp HD text and borders
-  canvas.width = 1200;
-  canvas.height = 2010;
+  // Power-of-two (1024x2048) texture for WebGL 1.0 mipmapping
+  canvas.width = 1024;
+  canvas.height = 2048;
   const ctx = canvas.getContext('2d');
-  ctx.scale(1.5, 1.5);
+  ctx.scale(1024 / 800, 2048 / 1340);
   
   // Background parchment tone
   ctx.fillStyle = '#f8f4e8';
@@ -215,9 +215,14 @@ export async function makePaperRenderer(container, card) {
   const texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, invitationTexture(card, grain));
-  gl.generateMipmap(gl.TEXTURE_2D);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  const texCanvas = invitationTexture(card, grain);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanvas);
+  try {
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  } catch {
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  }
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);

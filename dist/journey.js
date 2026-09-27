@@ -193,28 +193,30 @@ export function createJourney(card, { guest, config, onClose }) {
     const scale = innerWidth < 600 ? 0.22 : 0.25;
 
     if (elapsed < riseDuration) {
-      // GIAI ĐOẠN 1: Cất cánh từ phong bì, lượn vút lên
+      // GIAI ĐOẠN 1: Cất cánh từ phong bì, lượn vút lên bầu trời cao
       const t = ease(elapsed / riseDuration);
       x = g.begin;
-      y = 120 - 240 * t;
-      pitch = 45 * t;
+      const targetY = 160 - 325 * t; // Từ +160px vút lên -165px trên bầu trời
+      y = targetY - 335;
+      pitch = 40 * t;
       yaw = 18 * t;
       roll = Math.sin(t * Math.PI) * 8;
-      depth = 35 * t;
+      depth = 40 + 95 * t;
       camera = 0;
       counter.textContent = 'Lá thư đang cất cánh cùng kỷ niệm…';
     } else if (elapsed < riseDuration + travelDuration) {
-      // GIAI ĐOẠN 2: "Bay ngang bay dọc" 120 FPS mượt mà qua các bức ảnh
+      // GIAI ĐOẠN 2: "Bay ngang bay dọc" 120 FPS mượt mà trên bầu trời cao, HOÀN TOÀN TRÊN DẢI ẢNH
       const t = (elapsed - riseDuration) / travelDuration;
       x = g.begin + (g.end - g.begin) * t;
 
-      // Quỹ đạo bay dọc nhịp nhàng: giữ an toàn trên bầu trời cao (-145px đến -95px)
+      // Độ cao lượn bồng bềnh trên bầu trời cao (-190px đến -140px), cách xa dây phơi và dải ảnh
       const swoop = Math.sin(t * Math.PI * 8);
-      y = -120 - swoop * 24;
+      const targetY = -165 - swoop * 25;
+      y = targetY - 335;
 
       // Góc chúc mũi / ngóc đầu (Pitch) tự nhiên
       const slope = Math.cos(t * Math.PI * 8);
-      pitch = 38 - slope * 15;
+      pitch = 35 - slope * 14;
 
       // Nghiêng cánh (Roll/Bank) tự nhiên
       roll = -slope * 14;
@@ -222,8 +224,8 @@ export function createJourney(card, { guest, config, onClose }) {
       // Hướng bay (Yaw) xoay chuyển 3D
       yaw = 18 + Math.sin(t * Math.PI * 5) * 12;
 
-      // Độ sâu Z luôn nổi phía trước ảnh
-      depth = 35 + Math.sin(t * Math.PI * 6) * 15;
+      // Chiều sâu Z luôn ở phía trước dải ảnh
+      depth = 135 + Math.sin(t * Math.PI * 6) * 15;
 
       // Camera bám theo mượt mà
       camera = Math.min(g.camera, Math.max(0, x - innerWidth * 0.45));
@@ -234,15 +236,16 @@ export function createJourney(card, { guest, config, onClose }) {
         lastPhoto = index;
       }
     } else {
-      // GIAI ĐOẠN 3: Lượn vào điểm đáp, đứng thẳng và kẹp vào dây
+      // GIAI ĐOẠN 3: Lượn từ trên cao hạ cánh êm ái xuống điểm kẹp thư và đứng thẳng
       const t = Math.min(1, (elapsed - riseDuration - travelDuration) / landingDuration);
       const et = ease(t);
       x = g.end;
-      y = -120 + (120 + 35) * et;
-      pitch = 38 * (1 - et);
+      const targetY = -165 + (165 + 160) * et;
+      y = targetY - 335;
+      pitch = 35 * (1 - et);
       roll = 10 * (1 - et);
       yaw = 18 * (1 - et);
-      depth = 35 * (1 - et);
+      depth = 135 * (1 - et);
       camera = g.camera;
       counter.textContent = config?.journeyArrival ? ('Và lời mời: ' + config.recipient) : 'Và lời mời trân trọng nhất gửi tới mọi người…';
       if (t === 1) {
